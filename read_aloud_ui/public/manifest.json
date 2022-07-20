@@ -1,0 +1,15 @@
+{
+  "short_name": "Read Aloud",
+  "name": "Read aloud application",
+  "icons": [
+    {
+      "src": "read_aloud_logo3.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
