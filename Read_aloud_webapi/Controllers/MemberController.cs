@@ -12,20 +12,22 @@ using AutoMapper;
 
 namespace Read_aloud_webapi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MemberController : ControllerBase
     {
         private readonly ReadAloudContext _context;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _config;
 
-        public MemberController(ReadAloudContext context, IMapper mapper)
+        public MemberController(ReadAloudContext context, IMapper mapper, IConfiguration config)
         {
             _context = context;
             _mapper = mapper;
+            _config = config;
         }
 
-        // GET: api/Member
+        // GET: Member/GetMembersAndPersonalData
         [HttpGet]
         [Route("GetMembersAndPersonalData")]
         public async Task<ActionResult<IEnumerable<MemberResource>>> GetMembersAndPersonalData()
@@ -38,7 +40,7 @@ namespace Read_aloud_webapi.Controllers
             return Ok(_mapper.Map<List<Member>, List<MemberResource>>(memberData));
         }
 
-        // GET: api/Member
+        // GET: Member/GetMembersAndAssignments
         [HttpGet]
         [Route("GetMembersAndAssignments")]
         public async Task<ActionResult<IEnumerable<MemberResource>>> GetMembersAndAssignments()
@@ -51,9 +53,19 @@ namespace Read_aloud_webapi.Controllers
             return _mapper.Map<List<Member>, List<MemberResource>>(memberData);
         }
 
-        private bool MemberExists(int id)
+        // GET: Member/GetConnectionString
+        [HttpGet]
+        [Route("GetConnectionString")]
+        public ActionResult<Test> GetConnectionString()
         {
-            return (_context.Members?.Any(e => e.Id == id)).GetValueOrDefault();
+            Test test = new Test();
+            test.Key = _config.GetConnectionString("read_aloud_connectionString");
+            return Ok(test);
         }
+
+    private bool MemberExists(int id)
+    {
+        return (_context.Members?.Any(e => e.Id == id)).GetValueOrDefault();
     }
+}
 }
