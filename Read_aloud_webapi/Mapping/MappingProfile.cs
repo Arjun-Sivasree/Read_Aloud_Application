@@ -8,8 +8,13 @@ namespace Read_aloud_webapi.Mapping
     {
         public MappingProfile()
         {
+            //domain model to resource (for mappning db to api response)
             CreateMap<Member, MemberResource>();
             CreateMap<Assignment, AssignmentResource>();
+            CreateMap<Member, MemberResource>();
+
+            //resource to domain model (for mapping request to db)
+            CreateMap<MemberResource, Member>();
         }
     }
 }

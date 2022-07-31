@@ -11,7 +11,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000");
+                          policy.WithOrigins("http://localhost:3000")
+                                .WithHeaders("content-type")
+                                .WithMethods("GET", "POST", "DELETE", "OPTIONS");
                       });
 });
 
@@ -20,7 +22,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddDbContext<ReadAloudContext>(options => options.UseSqlServer(builder.Configuration["ConnectionStrings:Default"]));
+builder.Services.AddDbContext<ReadAloudContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("read_aloud_connectionString")));
 
 var app = builder.Build();
 
