@@ -29,12 +29,12 @@ namespace Read_aloud_webapi.Controllers
 
         // GET: Member/GetMembersAndPersonalData
         [HttpGet]
-        [Route("GetMembersAndPersonalData")]
+        [Route("MembersAndPersonalData")]
         public async Task<ActionResult<IEnumerable<MemberResource>>> GetMembersAndPersonalData()
         {
             if (_context.Members == null)
             {
-                return NotFound();
+                return BadRequest();
             }
             var memberData = await _context.Members.ToListAsync();
             return Ok(_mapper.Map<List<Member>, List<MemberResource>>(memberData));
@@ -42,15 +42,52 @@ namespace Read_aloud_webapi.Controllers
 
         // GET: Member/GetMembersAndAssignments
         [HttpGet]
-        [Route("GetMembersAndAssignments")]
+        [Route("MembersAndAssignments")]
         public async Task<ActionResult<IEnumerable<MemberResource>>> GetMembersAndAssignments()
         {
             if (_context.Members == null)
             {
-                return NotFound();
+                return BadRequest();
             }
             var memberData = await _context.Members.Include(c => c.Assignments).ToListAsync();
-            return _mapper.Map<List<Member>, List<MemberResource>>(memberData);
+            return Ok(_mapper.Map<List<Member>, List<MemberResource>>(memberData));
+        }
+
+        //Post: Member/MemberAndPersonalData
+        [HttpPost]
+        [Route("MemberAndPersonalData")]
+        public async Task<ActionResult<Member>> RegisterMember([FromBody] MemberResource memberResource)
+        {
+            if (_context.Members == null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                //check whether member exists before adding
+                if (_context.Members.Any(c => c.EmailId == memberResource.EmailId))
+                {
+                    return BadRequest("Member already exists");
+                }
+
+                //map from resource to domain class
+                Member _member = _mapper.Map<MemberResource, Member>(memberResource);
+
+                //add and save to db
+                var response = await _context.Members.AddAsync(_member);
+                await _context.SaveChangesAsync();
+
+                //map from domain class to resource
+                MemberResource result = _mapper.Map<Member, MemberResource>(_member);
+
+                //return success
+                return Created("http://localhost:5000/Member/MemberAndPersonalData", result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
         }
 
         // GET: Member/GetConnectionString
@@ -63,9 +100,9 @@ namespace Read_aloud_webapi.Controllers
             return Ok(test);
         }
 
-    private bool MemberExists(int id)
-    {
-        return (_context.Members?.Any(e => e.Id == id)).GetValueOrDefault();
+        private bool MemberExists(int id)
+        {
+            return (_context.Members?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
     }
-}
 }
